@@ -21,7 +21,7 @@ export const SCENES = [
   { c: Scene4Flow, d: 150 },
   { c: Scene5Machine, d: 120 },
   { c: Scene6Human, d: 90 },
-  { c: Scene7Morning, d: 120 },
+  { c: Scene7Morning, d: 150 },
   { c: Scene8Logo, d: 150 },
   { c: Scene9HypeGrid, d: 200 },
 ];
