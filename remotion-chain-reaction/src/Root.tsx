@@ -2,6 +2,7 @@ import { Composition } from "remotion";
 import { ChainReaction } from "./ChainReaction";
 import { ChainReactionSmooth } from "./ChainReactionSmooth";
 import { TheFlowFilm, FILM_DURATION } from "./TheFlowFilm";
+import { BrandSearch, BRANDSEARCH_DURATION } from "./brandsearch/BrandSearch";
 
 export const FPS = 30;
 export const DURATION = 420; // 14 seconds
@@ -9,6 +10,14 @@ export const DURATION = 420; // 14 seconds
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="BrandSearch"
+        component={BrandSearch}
+        durationInFrames={BRANDSEARCH_DURATION}
+        fps={FPS}
+        width={1080}
+        height={1920}
+      />
       <Composition
         id="TheFlowFilm"
         component={TheFlowFilm}
