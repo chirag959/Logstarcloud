@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from "remotion";
+import { CameraMotionBlur } from "@remotion/motion-blur";
 import { BLUE, BLUE_HOT, WHITE, FONT, SceneWrap, Caption } from "./common";
 
 // Scene 4 — The flow. A pulse races the wire; nodes ignite in a chain reaction.
@@ -123,19 +124,21 @@ export const Scene4Flow: React.FC<{ durationInFrames: number }> = ({ durationInF
           );
         })}
 
-        {progress > 0 &&
-          progress < SEGMENTS + 0.001 &&
-          ghosts.map((g, i) => (
-            <circle key={i} cx={g.p.x} cy={g.p.y} r={18 - i * 1.6} fill={BLUE_HOT} opacity={g.o} style={{ filter: "blur(4px)" }} />
-          ))}
-        {progress > 0 && progress < SEGMENTS + 0.001 && (
-          <g>
-            <circle cx={pulse.x} cy={pulse.y} r={60} fill={BLUE} opacity={0.3} style={{ filter: "blur(16px)" }} />
-            <circle cx={pulse.x} cy={pulse.y} r={22} fill={BLUE_HOT} filter="url(#s4glow)" />
-            <circle cx={pulse.x} cy={pulse.y} r={10} fill="#ffffff" />
-          </g>
-        )}
       </svg>
+
+      {/* pulse in its own motion-blurred layer for a buttery AE streak */}
+      {progress > 0 && progress < SEGMENTS + 0.001 && (
+        <CameraMotionBlur shutterAngle={220} samples={10}>
+          <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
+            {ghosts.map((g, i) => (
+              <circle key={i} cx={g.p.x} cy={g.p.y} r={16 - i * 1.6} fill={BLUE_HOT} opacity={g.o * 0.6} style={{ filter: "blur(3px)" }} />
+            ))}
+            <circle cx={pulse.x} cy={pulse.y} r={60} fill={BLUE} opacity={0.3} style={{ filter: "blur(16px)" }} />
+            <circle cx={pulse.x} cy={pulse.y} r={22} fill={BLUE_HOT} />
+            <circle cx={pulse.x} cy={pulse.y} r={10} fill="#ffffff" />
+          </svg>
+        </CameraMotionBlur>
+      )}
 
       <Caption frame={frame} start={6} bottom={140} size={34} color="#9cc4e6" weight={700}>
         Auto-reply → Lead saved → Slot booked → Invoice sent → Team alerted

@@ -1,6 +1,7 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { BLUE, BLUE_HOT, WHITE, SceneWrap, Caption } from "./common";
+import { CameraMotionBlur } from "@remotion/motion-blur";
+import { BLUE, BLUE_HOT, WHITE, SceneWrap, Caption, SMOOTH } from "./common";
 
 // Scene 5 — The machine, alive. Pull back to reveal a vast pulsing web.
 // Deterministic pseudo-random so it renders identically every frame.
@@ -44,12 +45,13 @@ const EDGES: [number, number][] = (() => {
 export const Scene5Machine: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => {
   const frame = useCurrentFrame();
   // pull back: start zoomed in, scale down
-  const scale = interpolate(frame, [0, durationInFrames], [2.1, 0.72], { extrapolateRight: "clamp" });
+  const scale = interpolate(frame, [0, durationInFrames], [2.1, 0.72], { extrapolateRight: "clamp", easing: SMOOTH });
   const reveal = interpolate(frame, [0, 40], [0, 1], { extrapolateRight: "clamp" });
 
   return (
     <SceneWrap durationInFrames={durationInFrames}>
       <AbsoluteFill style={{ background: "radial-gradient(60% 50% at 50% 50%, rgba(49,120,180,0.18), rgba(5,7,13,0) 75%)" }} />
+      <CameraMotionBlur shutterAngle={180} samples={8}>
       <AbsoluteFill style={{ transformOrigin: `${CX}px ${CY}px`, transform: `scale(${scale})` }}>
         <svg width={1080} height={1920} style={{ position: "absolute", inset: 0 }}>
           {EDGES.map(([a, b], i) => {
@@ -78,6 +80,7 @@ export const Scene5Machine: React.FC<{ durationInFrames: number }> = ({ duration
           })}
         </svg>
       </AbsoluteFill>
+      </CameraMotionBlur>
 
       <Caption frame={frame} start={30} bottom={280} size={56} weight={800}>
         Your business — <span style={{ color: BLUE_HOT }}>running itself.</span>

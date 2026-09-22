@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { WHITE, FONT, SceneWrap, Caption, Glyph } from "./common";
+import { WHITE, FONT, SceneWrap, Caption, Glyph, SMOOTH } from "./common";
 
 // Scene 7 — Morning payoff. Warm light, a phone stacked with "Booking confirmed".
 const CONFIRMS = ["Booking confirmed", "Booking confirmed", "Booking confirmed", "Booking confirmed"];
@@ -8,7 +8,7 @@ const CONFIRMS = ["Booking confirmed", "Booking confirmed", "Booking confirmed",
 export const Scene7Morning: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const push = interpolate(frame, [0, durationInFrames], [1.08, 1]);
+  const push = interpolate(frame, [0, durationInFrames], [1.08, 1], { easing: SMOOTH });
 
   return (
     <SceneWrap durationInFrames={durationInFrames} bg="#0d0a06">

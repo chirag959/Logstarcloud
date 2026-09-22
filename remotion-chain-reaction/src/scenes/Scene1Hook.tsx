@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { BLACK, BLUE, BLUE_HOT, WHITE, FONT, SceneWrap, Caption, Glyph } from "./common";
+import { BLACK, BLUE, BLUE_HOT, WHITE, FONT, SceneWrap, Caption, Glyph, SMOOTH } from "./common";
 
 // Scene 1 — The hook. A phone face-up in the dark lights up with a 2:14 AM message.
 export const Scene1Hook: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => {
@@ -11,7 +11,7 @@ export const Scene1Hook: React.FC<{ durationInFrames: number }> = ({ durationInF
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const push = interpolate(frame, [0, durationInFrames], [1, 1.12]);
+  const push = interpolate(frame, [0, durationInFrames], [1, 1.12], { easing: SMOOTH });
   const notif = spring({ frame: frame - 24, fps, config: { damping: 14, stiffness: 120 }, durationInFrames: 24 });
 
   return (

@@ -1,11 +1,11 @@
 import React from "react";
 import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
-import { BLUE, BLUE_HOT, WHITE, FONT, SceneWrap, Caption } from "./common";
+import { BLUE, BLUE_HOT, WHITE, FONT, SceneWrap, Caption, SMOOTH } from "./common";
 
 // Scene 6 — The human, untouched. Calm dark room, phone glowing softly with activity.
 export const Scene6Human: React.FC<{ durationInFrames: number }> = ({ durationInFrames }) => {
   const frame = useCurrentFrame();
-  const push = interpolate(frame, [0, durationInFrames], [1.04, 1.12]);
+  const push = interpolate(frame, [0, durationInFrames], [1.04, 1.12], { easing: SMOOTH });
   const breathe = 0.5 + 0.5 * Math.sin(frame / 22);
 
   return (

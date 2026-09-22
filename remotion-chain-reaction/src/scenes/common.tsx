@@ -1,5 +1,9 @@
 import React from "react";
-import { AbsoluteFill, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, interpolate, useCurrentFrame, Easing } from "remotion";
+
+// After-Effects style eased motion curves.
+export const EXPO_OUT = Easing.bezier(0.16, 1, 0.3, 1); // smooth snappy settle
+export const SMOOTH = Easing.bezier(0.45, 0, 0.15, 1); // silky ease-in-out
 
 // Brand palette
 export const BLACK = "#05070D";
@@ -17,14 +21,17 @@ export const SceneWrap: React.FC<{
   fadeIn?: number;
   fadeOut?: number;
   bg?: string;
-}> = ({ children, durationInFrames, fadeIn = 12, fadeOut = 12, bg = BLACK }) => {
+}> = ({ children, durationInFrames, fadeIn = 0, fadeOut = 0, bg = BLACK }) => {
   const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [0, fadeIn, durationInFrames - fadeOut, durationInFrames],
-    [0, 1, 1, 0],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
+  const opacity =
+    fadeIn === 0 && fadeOut === 0
+      ? 1
+      : interpolate(
+          frame,
+          [0, Math.max(fadeIn, 0.001), durationInFrames - Math.max(fadeOut, 0.001), durationInFrames],
+          [0, 1, 1, 0],
+          { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+        );
   return (
     <AbsoluteFill style={{ backgroundColor: bg }}>
       <AbsoluteFill style={{ opacity }}>{children}</AbsoluteFill>
@@ -52,11 +59,13 @@ export const Caption: React.FC<{
   weight = 700,
   maxWidth = 900,
 }) => {
-  const appear = interpolate(frame, [start, start + 16], [0, 1], {
+  const appear = interpolate(frame, [start, start + 20], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
+    easing: EXPO_OUT,
   });
-  const y = interpolate(appear, [0, 1], [26, 0]);
+  const y = interpolate(appear, [0, 1], [34, 0]);
+  const blur = interpolate(appear, [0, 1], [10, 0]);
   return (
     <div
       style={{
@@ -81,6 +90,7 @@ export const Caption: React.FC<{
           letterSpacing: 0.3,
           opacity: appear,
           transform: `translateY(${y}px)`,
+          filter: `blur(${blur}px)`,
           textShadow: "0 4px 30px rgba(0,0,0,0.6)",
         }}
       >
