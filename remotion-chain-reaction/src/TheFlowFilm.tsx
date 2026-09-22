@@ -10,6 +10,7 @@ import { Scene5Machine } from "./scenes/Scene5Machine";
 import { Scene6Human } from "./scenes/Scene6Human";
 import { Scene7Morning } from "./scenes/Scene7Morning";
 import { Scene8Logo } from "./scenes/Scene8Logo";
+import { Scene9HypeGrid } from "./scenes/Scene9HypeGrid";
 
 // Scene durations @ 30fps. TransitionSeries overlaps each crossfade, so the
 // film total = sum(durations) - sum(transitions).
@@ -21,7 +22,8 @@ export const SCENES = [
   { c: Scene5Machine, d: 120 },
   { c: Scene6Human, d: 90 },
   { c: Scene7Morning, d: 120 },
-  { c: Scene8Logo, d: 180 },
+  { c: Scene8Logo, d: 150 },
+  { c: Scene9HypeGrid, d: 200 },
 ];
 
 const XF = 16; // crossfade length in frames
