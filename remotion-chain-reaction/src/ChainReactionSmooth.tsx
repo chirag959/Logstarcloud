@@ -9,37 +9,52 @@ import {
 } from "remotion";
 
 // ---------------------------------------------------------------------------
-// "The Flow — Chain Reaction" (smooth cut)
-// Same story, buttery motion: trailing motion-blur pulse, spring node pops,
-// breathing glow, and an eased follow-camera with no clamp jerk.
+// "The Flow — Chain Reaction" (smooth, multi-colour cut)
+// Warm-gold pulse races the wire; each node ignites in its OWN colour and its
+// step caption appears beside it, on that node's side (never centered).
 // ---------------------------------------------------------------------------
 const SCENE_W = 1080;
 const SCENE_H = 3320;
 const VIEW_H = 1920;
 
-type Node = { key: string; label: string; x: number; y: number };
+type Node = {
+  key: string;
+  label: string;
+  step: string;
+  x: number;
+  y: number;
+  color: string; // base
+  hot: string; // bright core
+};
 
-const CHAT: Node = { key: "chat", label: "Chat", x: 540, y: 300 };
+const CHAT: Node = {
+  key: "chat",
+  label: "Chat",
+  step: "",
+  x: 540,
+  y: 300,
+  color: "#FFB43B",
+  hot: "#FFE0A3",
+};
+
+// Each node reacts in a different colour.
 const NODES: Node[] = [
-  { key: "reply", label: "Reply", x: 300, y: 820 },
-  { key: "crm", label: "CRM", x: 780, y: 1300 },
-  { key: "calendar", label: "Calendar", x: 320, y: 1800 },
-  { key: "invoice", label: "Invoice", x: 760, y: 2300 },
-  { key: "team", label: "Team", x: 420, y: 2820 },
+  { key: "reply", label: "Reply", step: "Auto-reply", x: 370, y: 820, color: "#34E5A4", hot: "#B6FFE4" },
+  { key: "crm", label: "CRM", step: "Lead saved", x: 710, y: 1300, color: "#FFC24B", hot: "#FFE9B8" },
+  { key: "calendar", label: "Calendar", step: "Slot booked", x: 370, y: 1800, color: "#FF6FB5", hot: "#FFC3E2" },
+  { key: "invoice", label: "Invoice", step: "Invoice sent", x: 700, y: 2300, color: "#B983FF", hot: "#E4CCFF" },
+  { key: "team", label: "Team", step: "Team alerted", x: 420, y: 2820, color: "#FF7A45", hot: "#FFC5A8" },
 ];
 const CHAIN: Node[] = [CHAT, ...NODES];
 
-const STEPS = ["Auto-reply", "Lead saved", "Slot booked", "Invoice sent", "Team alerted"];
-
-const BLUE = "#2FA8FF";
-const BLUE_HOT = "#7FD0FF";
+// warm-gold energy that runs through the wire / pulse
+const GOLD = "#FF9E2C";
+const GOLD_HOT = "#FFD98A";
 
 const INTRO = 40;
 const SEG = 66;
 const SEGMENTS = NODES.length;
 
-// Smooth per-hop travel with a gentle ease-in/out so the pulse decelerates
-// INTO each node (the satisfying "arrival") then accelerates out again.
 const hopEase = Easing.bezier(0.5, 0, 0.2, 1);
 
 function chainProgress(frame: number): number {
@@ -75,7 +90,9 @@ function progressToLength(progress: number): number {
 }
 
 // ---------------------------------------------------------------------------
-// Node — spring pop with a soft overshoot, plus a continuous glow breath.
+// Node — spring pop with soft overshoot, breathing glow, its own colour, and
+// its step caption anchored on the node's own side (left nodes -> left, right
+// nodes -> right). Never centered.
 // ---------------------------------------------------------------------------
 const NodeDot: React.FC<{ node: Node; index: number; frame: number; fps: number }> = ({
   node,
@@ -94,39 +111,69 @@ const NodeDot: React.FC<{ node: Node; index: number; frame: number; fps: number 
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  // gentle breathing once lit
   const breath = lit * (0.5 + 0.5 * Math.sin((frame - arrival) / 9));
   const r = 30 + 16 * pop;
+
+  // Side caption geometry — the node's own side.
+  const onLeft = node.x < 540;
+  const gap = r + 26;
+  const capX = onLeft ? node.x - gap : node.x + gap;
+  const capAnchor = onLeft ? "end" : "start";
+  const capSlide = interpolate(pop, [0, 1], [onLeft ? 26 : -26, 0]);
+  const capOpacity = index === 0 ? 0 : lit;
+
   return (
     <g transform={`translate(${node.x} ${node.y})`}>
       <circle
         r={r + 55 + 18 * breath}
-        fill={BLUE}
+        fill={node.color}
         opacity={0.16 * lit}
         style={{ filter: "blur(26px)" }}
       />
       <circle
         r={r}
         fill="#05080F"
-        stroke={lit > 0.02 ? BLUE_HOT : "#1c2b3a"}
+        stroke={lit > 0.02 ? node.hot : "#22242c"}
         strokeWidth={4}
         opacity={0.5 + 0.5 * lit}
       />
-      <circle r={r * 0.5} fill={BLUE_HOT} opacity={lit} />
-      <circle r={r * 0.5 * (0.8 + 0.2 * breath)} fill={BLUE} opacity={0.5 * lit} />
+      <circle r={r * 0.5} fill={node.hot} opacity={lit} />
+      <circle r={r * 0.5 * (0.8 + 0.2 * breath)} fill={node.color} opacity={0.5 * lit} />
+
+      {/* node name, below */}
       <text
         x={0}
-        y={r + 46}
+        y={r + 44}
         textAnchor="middle"
         fontFamily="Arial, Helvetica, sans-serif"
         fontWeight={700}
-        fontSize={38}
+        fontSize={34}
         letterSpacing={2}
         fill="#ffffff"
-        opacity={0.32 + 0.68 * lit}
+        opacity={0.3 + 0.6 * lit}
       >
         {node.label.toUpperCase()}
       </text>
+
+      {/* step caption, on the node's OWN side */}
+      {node.step && (
+        <text
+          x={capX - node.x + (onLeft ? capSlide : capSlide)}
+          y={12}
+          textAnchor={capAnchor}
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontWeight={800}
+          fontSize={42}
+          letterSpacing={0.5}
+          fill={node.hot}
+          opacity={capOpacity}
+          style={{
+            filter: `drop-shadow(0 0 14px ${node.color})`,
+          }}
+        >
+          {node.step}
+        </text>
+      )}
     </g>
   );
 };
@@ -139,23 +186,16 @@ export const ChainReactionSmooth: React.FC = () => {
   const pulse = pulsePoint(progress);
   const energisedLen = progressToLength(progress);
 
-  // ---- Eased follow-camera: sample progress a few frames back and lerp,
-  // so the pan glides instead of snapping. Soft-clamp at the ends.
   const rawCamTarget = pulse.y - VIEW_H * 0.55;
   const softClamp = (v: number, lo: number, hi: number) => {
     if (v < lo) return lo - (lo - v) * 0.15;
     if (v > hi) return hi + (v - hi) * 0.15;
     return v;
   };
-  // temporal smoothing: average of current + slightly-lagged target
-  const lagProgress = chainProgress(frame - 6);
-  const lagY = pulsePoint(lagProgress).y - VIEW_H * 0.55;
+  const lagY = pulsePoint(chainProgress(frame - 6)).y - VIEW_H * 0.55;
   const camY = softClamp((rawCamTarget + lagY) / 2, 0, SCENE_H - VIEW_H);
-
-  // smooth breathing zoom (no hard spring spikes)
   const zoom = 1.05 + 0.015 * Math.sin(frame / 22);
 
-  // ---- Motion-blur trail: several ghost pulses trailing the head.
   const TRAIL = 7;
   const ghosts = Array.from({ length: TRAIL }, (_, i) => {
     const gp = chainProgress(frame - (i + 1) * 1.6);
@@ -167,7 +207,7 @@ export const ChainReactionSmooth: React.FC = () => {
       <AbsoluteFill
         style={{
           background:
-            "radial-gradient(120% 70% at 50% 42%, rgba(20,60,110,0.28), rgba(3,6,12,0) 62%)",
+            "radial-gradient(120% 70% at 50% 42%, rgba(90,60,20,0.22), rgba(3,6,12,0) 62%)",
         }}
       />
       <AbsoluteFill
@@ -184,8 +224,8 @@ export const ChainReactionSmooth: React.FC = () => {
         >
           <defs>
             <linearGradient id="wireHot2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={BLUE_HOT} />
-              <stop offset="100%" stopColor={BLUE} />
+              <stop offset="0%" stopColor={GOLD_HOT} />
+              <stop offset="100%" stopColor={GOLD} />
             </linearGradient>
             <filter id="glow2" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="7" result="b" />
@@ -199,7 +239,7 @@ export const ChainReactionSmooth: React.FC = () => {
           <path
             d={PATH_D}
             fill="none"
-            stroke="#12324e"
+            stroke="#3a2f1a"
             strokeWidth={6}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -220,7 +260,6 @@ export const ChainReactionSmooth: React.FC = () => {
             <NodeDot key={n.key} node={n} index={i} frame={frame} fps={fps} />
           ))}
 
-          {/* trailing ghosts (motion blur streak) */}
           {progress > 0 &&
             progress < SEGMENTS + 0.001 &&
             ghosts.map((g, i) => (
@@ -229,106 +268,24 @@ export const ChainReactionSmooth: React.FC = () => {
                 cx={g.p.x}
                 cy={g.p.y}
                 r={22 - i * 1.6}
-                fill={BLUE_HOT}
+                fill={GOLD_HOT}
                 opacity={g.o}
                 style={{ filter: "blur(4px)" }}
               />
             ))}
 
-          {/* pulse head */}
           {progress > 0 && progress < SEGMENTS + 0.001 && (
             <g transform={`translate(${pulse.x} ${pulse.y})`}>
-              <circle r={72} fill={BLUE} opacity={0.3} style={{ filter: "blur(18px)" }} />
-              <circle r={26} fill={BLUE_HOT} filter="url(#glow2)" />
+              <circle r={72} fill={GOLD} opacity={0.3} style={{ filter: "blur(18px)" }} />
+              <circle r={26} fill={GOLD_HOT} filter="url(#glow2)" />
               <circle r={12} fill="#ffffff" />
             </g>
           )}
         </svg>
       </AbsoluteFill>
 
-      <StepOverlay frame={frame} fps={fps} progress={progress} />
       <TitleLockup frame={frame} durationInFrames={durationInFrames} />
     </AbsoluteFill>
-  );
-};
-
-const StepOverlay: React.FC<{ frame: number; fps: number; progress: number }> = ({
-  frame,
-  fps,
-  progress,
-}) => {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 210,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 22,
-        padding: "0 70px",
-      }}
-    >
-      {STEPS.map((step, i) => {
-        const arrival = INTRO + (i + 1) * SEG;
-        const pop = spring({
-          frame: frame - arrival,
-          fps,
-          config: { damping: 13, stiffness: 130, mass: 0.7 },
-          durationInFrames: 24,
-        });
-        const appear = interpolate(frame, [arrival - 4, arrival + 8], [0, 1], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        });
-        const y = interpolate(pop, [0, 1], [30, 0]);
-        const recency = progress - (i + 1);
-        const fade =
-          recency > 2.2
-            ? interpolate(recency, [2.2, 3.3], [1, 0.25], { extrapolateRight: "clamp" })
-            : 1;
-        return (
-          <div
-            key={step}
-            style={{
-              opacity: appear * fade,
-              transform: `translateY(${y}px) scale(${0.94 + 0.06 * pop})`,
-              display: "flex",
-              alignItems: "center",
-              gap: 18,
-              background: "rgba(8,20,34,0.72)",
-              border: `1px solid rgba(47,168,255,${0.25 + 0.45 * appear})`,
-              borderRadius: 999,
-              padding: "18px 34px",
-              boxShadow: `0 0 ${34 * appear}px rgba(47,168,255,0.35)`,
-            }}
-          >
-            <span
-              style={{
-                width: 14,
-                height: 14,
-                borderRadius: "50%",
-                background: BLUE_HOT,
-                boxShadow: `0 0 16px ${BLUE_HOT}`,
-              }}
-            />
-            <span
-              style={{
-                color: "#EAF6FF",
-                fontFamily: "Arial, Helvetica, sans-serif",
-                fontWeight: 700,
-                fontSize: 40,
-                letterSpacing: 1,
-              }}
-            >
-              {step}
-            </span>
-          </div>
-        );
-      })}
-    </div>
   );
 };
 
@@ -365,7 +322,7 @@ const TitleLockup: React.FC<{ frame: number; durationInFrames: number }> = ({
     >
       <div
         style={{
-          color: BLUE_HOT,
+          color: GOLD_HOT,
           fontFamily: "Arial, Helvetica, sans-serif",
           fontWeight: 800,
           fontSize: 30,
