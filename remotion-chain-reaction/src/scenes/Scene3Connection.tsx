@@ -124,16 +124,9 @@ export const Scene3Connection: React.FC<{ durationInFrames: number }> = ({ durat
             >
               <Glyph kind={n.kind} size={82} color={lit > 0.4 ? BLUE_HOT : "#5f7c93"} sw={5} />
             </div>
-            <div style={{ color: WHITE, fontFamily: FONT, fontWeight: 700, fontSize: 28, letterSpacing: 2, opacity: 0.35 + 0.6 * lit }}>
-              {n.label.toUpperCase()}
-            </div>
           </div>
         );
       })}
-
-      <Caption frame={frame} start={40} bottom={240} size={54}>
-        Until everything is <span style={{ color: "#3178B4" }}>connected.</span>
-      </Caption>
     </SceneWrap>
   );
 };

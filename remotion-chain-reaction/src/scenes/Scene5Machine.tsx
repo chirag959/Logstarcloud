@@ -81,10 +81,6 @@ export const Scene5Machine: React.FC<{ durationInFrames: number }> = ({ duration
         </svg>
       </AbsoluteFill>
       </CameraMotionBlur>
-
-      <Caption frame={frame} start={30} bottom={280} size={56} weight={800}>
-        Your business — <span style={{ color: BLUE_HOT }}>running itself.</span>
-      </Caption>
     </SceneWrap>
   );
 };

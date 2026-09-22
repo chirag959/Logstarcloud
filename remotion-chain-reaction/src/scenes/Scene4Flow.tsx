@@ -102,24 +102,6 @@ export const Scene4Flow: React.FC<{ durationInFrames: number }> = ({ durationInF
               <circle cx={n.x} cy={n.y} r={r + 40} fill={BLUE} opacity={0.14 * lit} style={{ filter: "blur(20px)" }} />
               <circle cx={n.x} cy={n.y} r={r} fill="#05080F" stroke={lit > 0.02 ? BLUE_HOT : "#1c2b3a"} strokeWidth={4} opacity={0.5 + 0.5 * lit} />
               <circle cx={n.x} cy={n.y} r={r * 0.5} fill={BLUE_HOT} opacity={lit} />
-              <text x={n.x} y={n.y + r + 40} textAnchor="middle" fontFamily={FONT} fontWeight={700} fontSize={30} letterSpacing={2} fill={WHITE} opacity={0.3 + 0.6 * lit}>
-                {n.label.toUpperCase()}
-              </text>
-              {n.step && (
-                <text
-                  x={capX}
-                  y={n.y + 10}
-                  textAnchor={onLeft ? "end" : "start"}
-                  fontFamily={FONT}
-                  fontWeight={800}
-                  fontSize={40}
-                  fill={BLUE_HOT}
-                  opacity={lit}
-                  style={{ filter: `drop-shadow(0 0 12px ${BLUE})` }}
-                >
-                  {n.step}
-                </text>
-              )}
             </g>
           );
         })}
@@ -139,10 +121,6 @@ export const Scene4Flow: React.FC<{ durationInFrames: number }> = ({ durationInF
           </svg>
         </CameraMotionBlur>
       )}
-
-      <Caption frame={frame} start={6} bottom={140} size={34} color="#9cc4e6" weight={700}>
-        Auto-reply → Lead saved → Slot booked → Invoice sent → Team alerted
-      </Caption>
     </SceneWrap>
   );
 };

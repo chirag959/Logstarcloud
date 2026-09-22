@@ -69,18 +69,9 @@ export const Scene2Problem: React.FC<{ durationInFrames: number }> = ({ duration
             >
               <Glyph kind={it.kind} size={82} color="#5f7c93" sw={5} />
             </div>
-            <div style={{ color: "#7f97ab", fontFamily: FONT, fontWeight: 700, fontSize: 30, letterSpacing: 2 }}>
-              {it.label.toUpperCase()}
-            </div>
           </div>
         );
       })}
-
-      <Caption frame={frame} start={30} bottom={250} size={48} color={WHITE}>
-        Normally it sits till morning.
-        <br />
-        By then, they&rsquo;re gone.
-      </Caption>
     </SceneWrap>
   );
 };
